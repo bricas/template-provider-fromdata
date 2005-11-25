@@ -4,5 +4,10 @@ lib/Template/Provider/FromDATA.pm
 MANIFEST
 META.yml
 t/01-use.t
+t/10-basic.t
+t/11-classes.t
+t/12-external_classes.t
+t/20-error.t
 t/98-pod_coverage.t
 t/99-pod.t
+t/lib/My/Templates.pm

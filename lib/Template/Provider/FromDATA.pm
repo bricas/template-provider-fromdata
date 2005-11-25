@@ -2,6 +2,11 @@ package Template::Provider::FromDATA;
 
 use base qw( Template::Provider Class::Accessor::Fast );
 
+use strict;
+use warnings;
+
+use Template::Constants;
+
 =head1 NAME
 
 Template::Provider::FromDATA - Load templates from your __DATA__ section
@@ -58,7 +63,7 @@ To install this module via ExtUtils::MakeMaker:
 
 __PACKAGE__->mk_accessors( qw( cache classes ) );
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 METHODS
 
@@ -89,7 +94,14 @@ sub new {
     my $options = shift || {};
     my $self    = $class->SUPER::new( $options );
 
-    $self->classes( $options->{ CLASSES } ) if $options->{ CLASSES };
+    my $classes = delete $options->{ CLASSES };
+    if( $classes ) {
+        $self->classes( $classes );
+        for( ref $classes ? @$classes : $classes ) {
+            eval "require $_";
+        }
+    }
+
     $self->cache( {} );
 
     return $self;
@@ -97,32 +109,65 @@ sub new {
 
 =head2 fetch( $file )
 
-This is a sub-classes method that tries to load the template. If C<$file>
-is a reference, then we assume it holds the content of the template.
+This is a sub-classed method that will forward things to the
+super-class' C<fetch> when it is passed a reference, or to
+C<_fetch> if it's a plain scalar. The scalar should hold the
+name of the template found in the C<__DATA__> section.
 
 =cut
 
 sub fetch {
     my( $self, $file ) = @_;
 
+    return $self->SUPER::fetch( $file ) if ref $file;
+    return $self->_fetch( $file );
+}
+
+=head2 _load( $file, [$alias] )
+
+Another sub-classed method. Normally this would try to load the
+template from a reference or a file on disk. Again, we forward things
+to the super-class if we see a reference, otherwise we grab the 
+content from the C<__DATA__> section.
+
+=cut
+
+sub _load {
+    my ($self, $file, $alias) = @_;
+
+    $self->SUPER::_load( $file, $alias ) if ref $file;
+
+    $self->debug( "_load( $file, ", defined $alias ? $alias : '<no alias>', 
+         ' )') if $self->{ DEBUG };
+
+    $alias = $file unless defined $alias;
+
     my $content;
-    if( ref $file ) {
-        $content = $$file;
+    my $classes = $self->classes || 'main';
+    for my $class ( ref $classes ? @$classes : $classes ) {
+        $content = $self->get_file( $class, $file );
+        last if $content;
     }
-    else {
-        my $classes = $self->classes || 'main';
-        for my $class ( ref $classes ? @$classes : $classes ) {
-            $content = $self->get_file( $class, $file );
-            last if $content
+
+    unless( $content ) {
+        if( $self->{ TOLERANT } ) {
+            return undef, Template::Constants::STATUS_DECLINED;
+        }
+        else {
+            return "$alias: Template not found", Template::Constants::STATUS_ERROR;
         }
     }
 
-    my( $data, $error ) = $self->_load( \$content );
-    ( $data, $error )   = $self->_compile( $data ) unless $error;
+    $content = $self->_decode_unicode( $content ) if $self->{ UNICODE };
+    my $data = {
+        name => $alias,
+        path => $file,
+        text => $content,
+        time => $^T,
+        load => time,
+    };
 
-    $data = $data->{ data } unless $error;
-
-    return $data, $error;
+    return $data, undef;
 }
 
 =head2 get_file( $class, $file )
@@ -143,7 +188,6 @@ sub get_file {
 
     unless ( $cache = $self->cache->{ $class } ) {
         local $/;
-
         $cache = eval "package $class; <DATA>";
         $self->cache->{ $class } = $cache;
     }

@@ -1,5 +1,10 @@
 Revision history for Perl extension Template::Provider::FromDATA
 
+0.02  Fri Nov 25 2005
+	- hooked in to TT2's caching system
+	- attempt to require() classes specified
+	- added tests
+
 0.01  Wed Nov 23 2005
 	- original version
 
