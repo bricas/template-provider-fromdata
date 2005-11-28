@@ -63,7 +63,7 @@ To install this module via ExtUtils::MakeMaker:
 
 __PACKAGE__->mk_accessors( qw( cache classes ) );
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 METHODS
 
@@ -135,7 +135,14 @@ content from the C<__DATA__> section.
 sub _load {
     my ($self, $file, $alias) = @_;
 
-    $self->SUPER::_load( $file, $alias ) if ref $file;
+    if( ref $file ) { 
+        return {
+            name => defined $alias ? $alias : 'input text',
+            text => $$file,
+            time => time,
+            load => 0,
+        };
+    }
 
     $self->debug( "_load( $file, ", defined $alias ? $alias : '<no alias>', 
          ' )') if $self->{ DEBUG };

@@ -1,4 +1,4 @@
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 use strict;
 use warnings;
@@ -6,11 +6,16 @@ use warnings;
 use_ok( 'Template' );
 use_ok( 'Template::Provider::FromDATA' );
 
-my $provider = Template::Provider::FromDATA->new;
+use Template::Constants qw( :debug );
+
+my $provider = Template::Provider::FromDATA->new({
+        DEBUG => DEBUG_PROVIDER,
+});
 isa_ok( $provider, 'Template::Provider::FromDATA' );
 
 my $template = Template->new( {
     LOAD_TEMPLATES => [ $provider ],
+
 } );
 isa_ok( $template, 'Template' );
 
@@ -24,6 +29,12 @@ isa_ok( $template, 'Template' );
     my $output;
     $template->process( 'baz', { qux => 'bar' }, \$output );
     is( $output, "bar\n\n" );
+}
+
+{
+    my $output;
+    $template->process( \'foo', { }, \$output );
+    is( $output, "foo" );
 }
 
 $template = Template->new( {
