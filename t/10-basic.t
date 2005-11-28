@@ -8,14 +8,11 @@ use_ok( 'Template::Provider::FromDATA' );
 
 use Template::Constants qw( :debug );
 
-my $provider = Template::Provider::FromDATA->new({
-        DEBUG => DEBUG_PROVIDER,
-});
+my $provider = Template::Provider::FromDATA->new;
 isa_ok( $provider, 'Template::Provider::FromDATA' );
 
 my $template = Template->new( {
-    LOAD_TEMPLATES => [ $provider ],
-
+    LOAD_TEMPLATES => [ $provider ]
 } );
 isa_ok( $template, 'Template' );
 
