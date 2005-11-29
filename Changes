@@ -1,5 +1,8 @@
 Revision history for Perl extension Template::Provider::FromDATA
 
+0.04  Mon Nov 28 2005
+	- fixed test suite line endings
+
 0.03  Mon Nov 28 2005
 	- fixed handling of scalar reference templates
 
