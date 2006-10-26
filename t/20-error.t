@@ -1,4 +1,4 @@
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 use strict;
 use warnings;
@@ -16,8 +16,14 @@ isa_ok( $template, 'Template' );
 
 {
     my $output;
+    $template->process( \'ref', {}, \$output );
+    like( $template->error, qr/not found/ );
+}
+
+{
+    my $output;
     $template->process( 'testDNE', {}, \$output );
-    is( $template->error, 'file error - testDNE: Template not found' );
+    like( $template->error, qr/not found/ );
 }
 
 __DATA__

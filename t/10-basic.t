@@ -1,4 +1,4 @@
-use Test::More tests => 9;
+use Test::More tests => 8;
 
 use strict;
 use warnings;
@@ -28,12 +28,6 @@ isa_ok( $template, 'Template' );
     is( $output, "bar\n\n" );
 }
 
-{
-    my $output;
-    $template->process( \'foo', { }, \$output );
-    is( $output, "foo" );
-}
-
 $template = Template->new( {
     LOAD_TEMPLATES => [ $provider ],
     WRAPPER        => 'wrapper'
@@ -43,7 +37,7 @@ isa_ok( $template, 'Template' );
 {
     my $output;
     $template->process( 'foo', {}, \$output );
-    is( $output, "before\nbar\n\nafter" );
+    is( $output, "before\nbar\n\nafter\n" );
 }
 
 __DATA__

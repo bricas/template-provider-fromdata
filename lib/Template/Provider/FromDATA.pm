@@ -63,7 +63,7 @@ To install this module via ExtUtils::MakeMaker:
 
 __PACKAGE__->mk_accessors( qw( cache classes ) );
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 METHODS
 
@@ -87,15 +87,16 @@ C<main>.
         CLASSES => [ 'Foo::Bar', 'Foo::Baz' ]
     } );
 
+=head2 _init( \%OPTIONS )
+
+A subclassed method to handle the options passed to C<new()>.
+
 =cut
 
-sub new {
-    my $class   = shift;
-    my $options = shift || {};
-    my $self    = $class->SUPER::new( $options );
+sub _init {
+    my( $self, $args ) = @_;
 
-    my $classes = delete $options->{ CLASSES };
-    if( $classes ) {
+    if( my $classes = delete $args->{ CLASSES } ) {
         $self->classes( $classes );
         for( ref $classes ? @$classes : $classes ) {
             eval "require $_";
@@ -104,83 +105,67 @@ sub new {
 
     $self->cache( {} );
 
-    return $self;
+    return $self->SUPER::_init;
 }
 
-=head2 fetch( $file )
+=head2 fetch( $name )
 
-This is a sub-classed method that will forward things to the
-super-class' C<fetch> when it is passed a reference, or to
-C<_fetch> if it's a plain scalar. The scalar should hold the
-name of the template found in the C<__DATA__> section.
+This is a subclassed method that will load a template from
+the C<__DATA__> section via the C<_load()> sub.
 
 =cut
 
 sub fetch {
-    my( $self, $file ) = @_;
+    my( $self, $name  ) = @_;
+    my( $data, $error );
 
-    return $self->SUPER::fetch( $file ) if ref $file;
-    return $self->_fetch( $file );
+    return undef, Template::Constants::STATUS_DECLINED if ref $name;
+
+    if( defined $self->{ SIZE } && $self->{ LOOKUP }->{ $name } ) {
+        ( $data, $error ) = $self->_fetch( $name );
+    }
+    else {
+        ( $data, $error ) = $self->_load( $name );
+        ( $data, $error ) = $self->_compile( $data ) unless $error;
+        $data = $self->_store( $name, $data ) unless $error;
+    }
+    
+    return $data, $error;
 }
 
-=head2 _load( $file, [$alias] )
+=head2 _load( $name )
 
-Another sub-classed method. Normally this would try to load the
-template from a reference or a file on disk. Again, we forward things
-to the super-class if we see a reference, otherwise we grab the 
-content from the C<__DATA__> section.
+Loads the template via the C<get_file()> sub and sets some cache
+information.
 
 =cut
 
 sub _load {
-    my ($self, $file, $alias) = @_;
-
-    if( ref $file ) { 
-        return {
-            name => defined $alias ? $alias : 'input text',
-            text => $$file,
-            time => time,
-            load => 0,
-        };
-    }
-
-    $self->debug( "_load( $file, ", defined $alias ? $alias : '<no alias>', 
-         ' )') if $self->{ DEBUG };
-
-    $alias = $file unless defined $alias;
-
-    my $content;
+    my( $self, $name ) = @_;
+    my $data    = {};
     my $classes = $self->classes || 'main';
+    my( $content, $error );
+
     for my $class ( ref $classes ? @$classes : $classes ) {
-        $content = $self->get_file( $class, $file );
+        $content = $self->get_file( $class, $name );
         last if $content;
     }
 
-    unless( $content ) {
-        if( $self->{ TOLERANT } ) {
-            return undef, Template::Constants::STATUS_DECLINED;
-        }
-        else {
-            return "$alias: Template not found", Template::Constants::STATUS_ERROR;
-        }
-    }
+    my $time = time;
+    $data->{ time } = $time;
+    $data->{ load } = $time;
+    $data->{ name } = $name;
+    $data->{ text } = $content;
 
-    $content = $self->_decode_unicode( $content ) if $self->{ UNICODE };
-    my $data = {
-        name => $alias,
-        path => $file,
-        text => $content,
-        time => $^T,
-        load => time,
-    };
+    $error = Template::Constants::STATUS_DECLINED if !$content;
 
-    return $data, undef;
+    return $data, $error;
 }
 
-=head2 get_file( $class, $file )
+=head2 get_file( $class, $template )
 
 This method searches through C<$class> for a template
-named C<$file>. Returns the contents on success, undef
+named C<$template>. Returns the contents on success, undef
 on failure.
 
 This function was mostly borrowed from L<Catalyst::Helper>'s
@@ -189,7 +174,7 @@ C<get_file> function.
 =cut
 
 sub get_file {
-    my( $self, $class, $file ) = @_;
+    my( $self, $class, $template ) = @_;
 
     my $cache;
 
@@ -203,7 +188,7 @@ sub get_file {
     shift @files;
     while (@files) {
         my( $name, $content ) = splice @files, 0, 2;
-        return $content if $name eq $file;
+        return $content if $name eq $template;
     }
 
     return undef;

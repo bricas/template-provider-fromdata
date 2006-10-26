@@ -1,16 +1,20 @@
 Revision history for Perl extension Template::Provider::FromDATA
 
+0.05  Thu Oct 26 2006
+    - rewrite based on code from Jess Robinson
+    - refs are no longer passed to the super class
+
 0.04  Mon Nov 28 2005
-	- fixed test suite line endings
+    - fixed test suite line endings
 
 0.03  Mon Nov 28 2005
-	- fixed handling of scalar reference templates
+    - fixed handling of scalar reference templates
 
 0.02  Fri Nov 25 2005
-	- hooked in to TT2's caching system
-	- attempt to require() classes specified
-	- added tests
+    - hooked in to TT2's caching system
+    - attempt to require() classes specified
+    - added tests
 
 0.01  Wed Nov 23 2005
-	- original version
+    - original version
 
