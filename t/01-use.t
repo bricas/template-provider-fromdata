@@ -4,6 +4,6 @@ use strict;
 use warnings;
 
 BEGIN {
-	use_ok( 'Template::Provider::FromDATA' );
+    use_ok( 'Template::Provider::FromDATA' );
 }
 

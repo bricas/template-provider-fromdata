@@ -110,8 +110,8 @@ sub _init {
 
 =head2 fetch( $name )
 
-This is a subclassed method that will load a template from
-the C<__DATA__> section via the C<_load()> sub.
+This is a subclassed method that will load a template via C<_fetch()>
+if a non-reference argument is passed.
 
 =cut
 
@@ -195,7 +195,7 @@ sub get_file {
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2005 by Brian Cassidy
+Copyright 2006 by Brian Cassidy
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
