@@ -117,19 +117,10 @@ the C<__DATA__> section via the C<_load()> sub.
 
 sub fetch {
     my( $self, $name  ) = @_;
-    my( $data, $error );
 
     return undef, Template::Constants::STATUS_DECLINED if ref $name;
 
-    if( defined $self->{ SIZE } && $self->{ LOOKUP }->{ $name } ) {
-        ( $data, $error ) = $self->_fetch( $name );
-    }
-    else {
-        ( $data, $error ) = $self->_load( $name );
-        ( $data, $error ) = $self->_compile( $data ) unless $error;
-        $data = $self->_store( $name, $data ) unless $error;
-    }
-    
+    my( $data, $error ) = $self->_fetch( $name );    
     return $data, $error;
 }
 

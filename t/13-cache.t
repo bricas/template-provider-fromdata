@@ -12,7 +12,8 @@ my $provider = Template::Provider::FromDATA->new;
 isa_ok( $provider, 'Template::Provider::FromDATA' );
 
 my $template = Template->new( {
-    LOAD_TEMPLATES => [ $provider ]
+    LOAD_TEMPLATES => [ $provider ],
+#    DEBUG          => DEBUG_ALL
 } );
 isa_ok( $template, 'Template' );
 
