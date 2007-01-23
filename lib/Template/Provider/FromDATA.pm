@@ -63,7 +63,7 @@ To install this module via ExtUtils::MakeMaker:
 
 __PACKAGE__->mk_accessors( qw( cache classes ) );
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 METHODS
 

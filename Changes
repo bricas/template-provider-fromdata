@@ -1,5 +1,8 @@
 Revision history for Perl extension Template::Provider::FromDATA
 
+0.06  Tue Jan 23 2007
+    - fixed deps: added Class::Accessor
+
 0.05  Fri Nov 03 2006
     - rewrite based on code from Jess Robinson
     - refs are no longer passed to the super class

@@ -9,7 +9,8 @@ my $build = Module::Build->new(
     create_readme      => 1,
     create_makefile_pl => 'traditional',
     requires           => {
-        'Template' => '2.15',
+        'Template'        => '2.15',
+        'Class::Accessor' => 0,
     },
     build_requres      => {
         'Test::More' => 0,
