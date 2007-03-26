@@ -63,7 +63,7 @@ To install this module via ExtUtils::MakeMaker:
 
 __PACKAGE__->mk_accessors( qw( cache classes ) );
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 =head1 METHODS
 
@@ -95,14 +95,15 @@ A subclassed method to handle the options passed to C<new()>.
 
 sub _init {
     my( $self, $args ) = @_;
-
-    if( my $classes = delete $args->{ CLASSES } ) {
-        $self->classes( $classes );
-        for( ref $classes ? @$classes : $classes ) {
-            eval "require $_";
-        }
+    my $classes = delete $args->{ CLASSES };
+    $classes ||= [ 'main' ];
+    $classes   = [ $classes ] if not ref $classes;
+    
+    for( @$classes ) {
+        eval "require $_";
     }
 
+    $self->classes( $classes );
     $self->cache( {} );
 
     return $self->SUPER::_init;
@@ -134,10 +135,10 @@ information.
 sub _load {
     my( $self, $name ) = @_;
     my $data    = {};
-    my $classes = $self->classes || 'main';
+    my $classes = $self->classes;
     my( $content, $error );
 
-    for my $class ( ref $classes ? @$classes : $classes ) {
+    for my $class ( @$classes ) {
         $content = $self->get_file( $class, $name );
         last if $content;
     }
@@ -171,7 +172,9 @@ sub get_file {
 
     unless ( $cache = $self->cache->{ $class } ) {
         local $/;
-        $cache = eval "package $class; <DATA>";
+        no strict 'refs';
+        my $fh = \*{"${class}\::DATA"};
+        $cache = <$fh>;
         $self->cache->{ $class } = $cache;
     }
 
