@@ -19,7 +19,7 @@ isa_ok( $template, 'Template' );
 {
     my $output;
     $template->process( 'test', {}, \$output );
-    is( $output, "template data" );
+    is( $output, "template data\n" );
 }
 
 package My::Templates;
