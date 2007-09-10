@@ -43,16 +43,12 @@ This module allows you to store your templates inline with your
 code in the C<__DATA__> section. It will search any number of classes
 specified.
 
+=head1 CAVEAT
+
+If you name two templates the same, this module will not understand the
+difference. It will simply return the first once found.
+
 =head1 INSTALLATION
-
-To install this module via Module::Build:
-
-    perl Build.PL
-    ./Build         # or `perl Build`
-    ./Build test    # or `perl Build test`
-    ./Build install # or `perl Build install`
-
-To install this module via ExtUtils::MakeMaker:
 
     perl Makefile.PL
     make
@@ -104,7 +100,7 @@ sub _init {
     }
 
     $self->classes( $classes );
-    $self->cache( {} );
+    $self->cache( { classes => {}, templates => {} } );
 
     return $self->SUPER::_init;
 }
@@ -168,37 +164,42 @@ C<get_file> function.
 sub get_file {
     my( $self, $class, $template ) = @_;
 
-    my $cache;
+    my $cache = $self->cache;
 
-    unless ( $cache = $self->cache->{ $class } ) {
-        local $/;
-        no strict 'refs';
-        my $fh = \*{"${class}\::DATA"};
-        $cache = <$fh>;
-        $self->cache->{ $class } = $cache;
+    if( !exists $cache->{ templates }->{ $template } ) {
+        unless ( $cache->{ classes }->{ $class } ) {
+            local $/;
+            no strict 'refs';
+            my $fh = \*{"${class}\::DATA"};
+            my $filecache = <$fh>;
+            $cache->{ classes }->{ $class }++;
+
+            my $result;
+            my @files = split /^__(.+)__\r?\n/m, $filecache;
+            shift @files;
+            while (@files) {
+                my( $name, $content ) = splice @files, 0, 2;
+                $cache->{ templates }->{ $name } = $content;
+                $result = $content if $name eq $template;
+            }
+
+            return $result;
+        }
+
+        return undef;
     }
-
-    my @files = split /^__(.+)__\r?\n/m, $cache;
-    shift @files;
-    while (@files) {
-        my( $name, $content ) = splice @files, 0, 2;
-        return $content if $name eq $template;
+    else {
+        return $cache->{ templates }->{ $template };
     }
-
-    return undef;
 }
 
 =head1 AUTHOR
 
-=over 4 
-
-=item * Brian Cassidy E<lt>bricas@cpan.orgE<gt>
-
-=back
+Brian Cassidy E<lt>bricas@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2006 by Brian Cassidy
+Copyright 2007 by Brian Cassidy
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

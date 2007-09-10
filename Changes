@@ -1,5 +1,10 @@
 Revision history for Perl extension Template::Provider::FromDATA
 
+0.07  Mon Sep 10 2007
+    - switch to Module::Install
+    - better internal caching of templates
+    - added caveat about same-named templates
+
 0.06  Tue Jan 23 2007
     - fixed deps: added Class::Accessor
 
