@@ -45,7 +45,7 @@ specified.
 
 =head1 CAVEAT
 
-If you name two templates with the same name, this module will not understand
+If you have two templates with the same name, this module will not understand
 the difference, it will simply return the first one found.
 
 =head1 INSTALLATION
