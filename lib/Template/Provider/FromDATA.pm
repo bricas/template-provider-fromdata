@@ -59,7 +59,7 @@ the difference, it will simply return the first one found.
 
 __PACKAGE__->mk_accessors( qw( cache classes ) );
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 METHODS
 
@@ -199,7 +199,7 @@ Brian Cassidy E<lt>bricas@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008 by Brian Cassidy
+Copyright 2005-2009 by Brian Cassidy
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
