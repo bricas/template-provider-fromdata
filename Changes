@@ -1,5 +1,9 @@
 Revision history for Perl extension Template::Provider::FromDATA
 
+0.10  XXX
+    - Added the ability to specify a fully qualified template
+      name (Kevin McGrath)
+
 0.09  Thu Nov 19 2009
     - repackaged with a new version of Module::Install
 
