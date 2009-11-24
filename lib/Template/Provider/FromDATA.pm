@@ -190,8 +190,10 @@ sub get_file {
     return undef if $cache->{ classes }->{ $class };
     
     no strict 'refs';
-    my $fh = \*{"${class}\::DATA"};
+    my $fh  = \*{"${class}\::DATA"};
+    my $pos = tell( $fh );
     my $filecache = do { local $/; <$fh>; };
+    seek( $fh, $pos, 0 );
     $cache->{ classes }->{ $class }++;
 
     my $result;

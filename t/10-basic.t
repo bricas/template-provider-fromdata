@@ -6,8 +6,6 @@ use warnings;
 use_ok( 'Template' );
 use_ok( 'Template::Provider::FromDATA' );
 
-use Template::Constants qw( :debug );
-
 my $provider = Template::Provider::FromDATA->new;
 isa_ok( $provider, 'Template::Provider::FromDATA' );
 
