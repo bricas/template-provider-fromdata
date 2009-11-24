@@ -181,32 +181,30 @@ sub get_file {
     my( $self, $class, $template ) = @_;
 
     my $cache = $self->cache;
+    my $key   = "${class}/${template}";
 
-    if( !exists $cache->{ templates }->{ $template } ) {
-        unless ( $cache->{ classes }->{ $class } ) {
-            local $/;
-            no strict 'refs';
-            my $fh = \*{"${class}\::DATA"};
-            my $filecache = <$fh>;
-            $cache->{ classes }->{ $class }++;
-
-            my $result;
-            my @files = split /^__(.+)__\r?\n/m, $filecache;
-            shift @files;
-            while (@files) {
-                my( $name, $content ) = splice @files, 0, 2;
-                $cache->{ templates }->{ $name } = $content;
-                $result = $content if $name eq $template;
-            }
-
-            return $result;
-        }
-
-        return undef;
+    if( exists $cache->{ templates }->{ $key } ) {
+        return $cache->{ templates }->{ $key };
     }
-    else {
-        return $cache->{ templates }->{ $template };
+
+    return undef if $cache->{ classes }->{ $class };
+    
+    no strict 'refs';
+    my $fh = \*{"${class}\::DATA"};
+    my $filecache = do { local $/; <$fh>; };
+    $cache->{ classes }->{ $class }++;
+
+    my $result;
+    my @files = split /^__(.+)__\r?\n/m, $filecache;
+    shift @files;
+    while (@files) {
+        my( $name, $content ) = splice @files, 0, 2;
+        my $key = "${class}/${name}";
+        $cache->{ templates }->{ $key } = $content;
+        $result = $content if $name eq $template;
     }
+
+    return $result;
 }
 
 =head1 AUTHOR
