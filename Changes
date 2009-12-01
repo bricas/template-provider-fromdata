@@ -1,6 +1,6 @@
 Revision history for Perl extension Template::Provider::FromDATA
 
-0.11  XXX
+0.11  Tue Dec 01 2009
     - Fix pod coverage test
     - Move pod + pod coverage tests to release-only testing
 
