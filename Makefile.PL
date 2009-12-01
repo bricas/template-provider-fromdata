@@ -13,6 +13,7 @@ requires 'Template' => '2.15';
 requires 'Class::Accessor';
 
 test_requires 'Test::More';
+extra_tests;
 
 repository "http://github.com/bricas/template-provider-fromdata/tree/master";
 

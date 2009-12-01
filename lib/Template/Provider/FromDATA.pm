@@ -67,7 +67,7 @@ a C</> to separate the module name from the template name.
 
 __PACKAGE__->mk_accessors( qw( cache classes ) );
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 =head1 METHODS
 
@@ -208,6 +208,16 @@ sub get_file {
 
     return $result;
 }
+
+=head1 ACCESSORS
+
+=head2 classes
+
+An arrayref of the class names containing our templates.
+
+=head2 cache
+
+A hashref of file and template data.
 
 =head1 AUTHOR
 
