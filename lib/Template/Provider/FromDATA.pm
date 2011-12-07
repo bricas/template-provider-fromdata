@@ -73,22 +73,29 @@ our $VERSION = '0.11';
 
 =head2 new( \%OPTIONS )
 
-Create a new instance of the provider. The only option you can
-specify is C<CLASSES> which will tell the provider what classes
-to search for templates. By omitting this option it will search
-C<main>.
+Create a new instance of the provider. You can specify a list of classes to 
+be searched for templates via the C<CLASSES> option. By omitting this option 
+it will search C<main>.
 
     # defaults to 'main'
     $provider = Template::Provider::FromDATA->new;
     
     # look for templates in 'Foo'
-    $provider = Template::Provider::FromDATA->new;( {
+    $provider = Template::Provider::FromDATA->new( {
         CLASSES => 'Foo'
     } );
 
     # look for templates in 'Foo::Bar' and 'Foo::Baz'
-    $provider = Template::Provider::FromDATA->new;( {
+    $provider = Template::Provider::FromDATA->new( {
         CLASSES => [ 'Foo::Bar', 'Foo::Baz' ]
+    } );
+
+By default, template data is lazy-loaded as they it is  requested. If you
+wish to load up all template data upon initializtion, you can use the 
+C<PRELOAD> option.
+
+    $provider = Template::Provider::FromDATA->new( {
+        PRELOAD => 1
     } );
 
 =head2 _init( \%OPTIONS )
@@ -109,6 +116,10 @@ sub _init {
 
     $self->classes( $classes );
     $self->cache( { classes => {}, templates => {} } );
+
+    if( delete $args->{ PRELOAD } ) {
+        $self->_cache_class( $_ ) for @$classes;
+    }
 
     return $self->SUPER::_init;
 }
@@ -183,12 +194,22 @@ sub get_file {
     my $cache = $self->cache;
     my $key   = "${class}/${template}";
 
+    $self->_cache_class( $class ) unless $cache->{ classes }->{ $class };
+
     if( exists $cache->{ templates }->{ $key } ) {
         return $cache->{ templates }->{ $key };
     }
 
-    return undef if $cache->{ classes }->{ $class };
-    
+    return undef;
+}
+
+sub _cache_class {
+    my( $self, $class ) = @_;
+
+    my $cache = $self->cache;
+
+    return if $cache->{ classes }->{ $class };
+
     no strict 'refs';
     my $fh  = \*{"${class}\::DATA"};
     my $pos = tell( $fh );
@@ -196,17 +217,13 @@ sub get_file {
     seek( $fh, $pos, 0 );
     $cache->{ classes }->{ $class }++;
 
-    my $result;
     my @files = split /^__(.+)__\r?\n/m, $filecache;
     shift @files;
     while (@files) {
         my( $name, $content ) = splice @files, 0, 2;
         my $key = "${class}/${name}";
         $cache->{ templates }->{ $key } = $content;
-        $result = $content if $name eq $template;
     }
-
-    return $result;
 }
 
 =head1 ACCESSORS
@@ -225,7 +242,7 @@ Brian Cassidy E<lt>bricas@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2005-2009 by Brian Cassidy
+Copyright 2005-2011 by Brian Cassidy
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
