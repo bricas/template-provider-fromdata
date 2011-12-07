@@ -67,7 +67,7 @@ a C</> to separate the module name from the template name.
 
 __PACKAGE__->mk_accessors( qw( cache classes ) );
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 =head1 METHODS
 
