@@ -1,4 +1,4 @@
-use inc::Module::Install 1.00;
+use inc::Module::Install 1.05;
 
 if ( -e 'MANIFEST.SKIP' ) {
     system( 'pod2text lib/Template/Provider/FromDATA.pm > README' );

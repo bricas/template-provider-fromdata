@@ -1,5 +1,8 @@
 Revision history for Perl extension Template::Provider::FromDATA
 
+0.13 2012-10-22
+ - Repackage to fix Module::Install 1.04 issue
+
 0.12 2011-12-07
  - Added PRELOAD option to get around situations where lazy-loading templates
    is problematic (RT #25805)

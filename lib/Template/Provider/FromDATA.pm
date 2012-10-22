@@ -67,7 +67,7 @@ a C</> to separate the module name from the template name.
 
 __PACKAGE__->mk_accessors( qw( cache classes ) );
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 =head1 METHODS
 
@@ -242,7 +242,7 @@ Brian Cassidy E<lt>bricas@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2005-2011 by Brian Cassidy
+Copyright 2005-2012 by Brian Cassidy
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
